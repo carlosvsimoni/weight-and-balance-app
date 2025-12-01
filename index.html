@@ -1,54 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>W&BRotorcraft</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<style>
-  :root { --bg:#0f172a; --card:#0b1220; --muted:#94a3b8; --text:#e5e7eb; --accent:#22d3ee; }
-  * { box-sizing: border-box; }
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
-  .wrap{max-width:640px;margin:0 auto;padding:20px 14px 80px 14px}
-  h1{font-size:22px;margin:8px 0 6px}
-  .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
-  .card{background:var(--card);border:1px solid #1f2937;border-radius:16px;padding:14px;margin:12px 0}
-  .field{display:flex;flex-direction:column;margin-bottom:10px}
-  label{font-size:13px;color:var(--muted);margin-bottom:6px}
-  select, input[type="number"], input[readonly], input[type="text"], input[type="date"]{
-    -webkit-appearance:none;appearance:none;
-    width:100%;font-size:16px;padding:10px 12px;border-radius:12px;
-    background:#09101E;border:1px solid #1f2937;color:var(--text);
-  }
-  input[readonly]{opacity:.85}
-  input[type="number"]::-webkit-outer-spin-button,
-  input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0;}
-  table{width:100%;border-collapse:separate;border-spacing:0 8px}
-  th, td{padding:10px 8px;font-size:16px}
-  thead th{color:#cbd5e1;text-align:left;border-bottom:1px solid #1f2937}
-  tbody tr{background:#0a1426;border:1px solid #162134;border-radius:12px}
-  tbody td:first-child{border-top-left-radius:12px;border-bottom-left-radius:12px}
-  tbody td:last-child{border-top-right-radius:12px;border-bottom-right-radius:12px}
-  .right{text-align:right}
-  .muted{color:var(--muted)}
-  .btn{background:var(--accent);color:#06232a;border:none;padding:12px 16px;border-radius:12px;font-weight:700;font-size:16px;cursor:pointer}
-  .btn:active{transform:scale(0.98)}
-  .row{display:flex;gap:10px;align-items:center}
-  .row>*{flex:1}
-  .footer{position:fixed;left:0;right:0;bottom:0;background:rgba(9,16,30,.92);backdrop-filter: blur(4px);border-top:1px solid #1f2937;padding:8px 14px;font-size:12px;color:#9aa7b5}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-</style>
+  <meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  >
+  <title>W&BRotorcraft</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0f172a">
+  <style>
+    :root { --bg:#0f172a; --card:#0b1220; --muted:#94a3b8; --text:#e5e7eb; --accent:#22d3ee; }
+    * { box-sizing: border-box; }
+    html,body{
+      margin:0;padding:0;
+      background:var(--bg);color:var(--text);
+      font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif
+    }
+    .wrap{max-width:640px;margin:0 auto;padding:20px 14px 80px 14px}
+    h1{font-size:22px;margin:8px 0 6px}
+    .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+    .card{
+      background:var(--card);border:1px solid #1f2937;
+      border-radius:16px;padding:14px;margin:12px 0
+    }
+    .field{display:flex;flex-direction:column;margin-bottom:10px}
+    label{font-size:13px;color:var(--muted);margin-bottom:6px}
+    select,
+    input[type="number"],
+    input[readonly],
+    input[type="text"],
+    input[type="date"]{
+      -webkit-appearance:none;appearance:none;
+      width:100%;font-size:16px;padding:10px 12px;border-radius:12px;
+      background:#09101E;border:1px solid #1f2937;color:var(--text);
+    }
+    input[readonly]{opacity:.85}
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button{
+      -webkit-appearance: none; margin: 0;
+    }
+    table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    th, td{padding:10px 8px;font-size:16px}
+    thead th{color:#cbd5e1;text-align:left;border-bottom:1px solid #1f2937}
+    tbody tr{background:#0a1426;border:1px solid #162134;border-radius:12px}
+    tbody td:first-child{border-top-left-radius:12px;border-bottom-left-radius:12px}
+    tbody td:last-child{border-top-right-radius:12px;border-bottom-right-radius:12px}
+    .right{text-align:right}
+    .muted{color:var(--muted)}
+    .btn{
+      background:var(--accent);color:#06232a;border:none;
+      padding:12px 16px;border-radius:12px;font-weight:700;
+      font-size:16px;cursor:pointer
+    }
+    .btn:active{transform:scale(0.98)}
+    .row{display:flex;gap:10px;align-items:center}
+    .row>*{flex:1}
+    .footer{
+      position:fixed;left:0;right:0;bottom:0;
+      background:rgba(9,16,30,.92);backdrop-filter: blur(4px);
+      border-top:1px solid #1f2937;padding:8px 14px;
+      font-size:12px;color:#9aa7b5
+    }
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  </style>
 
-<!-- jsPDF UMD from CDN -->
-<script
-  src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
-  crossorigin="anonymous"
-  referrerpolicy="no-referrer"
-></script>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0f172a">
+
+  <!-- jsPDF UMD from CDN -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
 </head>
 <body>
 <div class="wrap">
@@ -58,6 +85,7 @@
     Outputs fixed to 3 decimals with commas.
   </div>
 
+  <!-- MAIN CALC CARD -->
   <div class="card">
     <div class="field">
       <label>Blade Type</label>
@@ -105,6 +133,7 @@
     </div>
   </div>
 
+  <!-- META / PDF CARD -->
   <div class="card">
     <h2 style="font-size:16px;margin:0 0 8px">Weight &amp; Balance Report Info</h2>
     <div class="sub" style="margin-bottom:10px">
@@ -172,6 +201,7 @@
     </div>
   </div>
 
+  <!-- FACTORS CARD -->
   <div class="card">
     <div class="grid2">
       <div>
@@ -199,39 +229,59 @@
 </div>
 
 <script>
-// === Data & helpers ===
+/* =========================
+   DATA & HELPERS
+   ========================= */
 const PREC = 3;
+
 const THREE = {
   "214":   { a:254, b:77.6875, c:77.6875, chord:27,   ref:6.25 },
   "UH-60 (BlackHawk)": { a:241.125, b:64.8125, c:64.8125, chord:21, ref:6.75 },
   "K747":  { a:211, b:74, c:74, chord:27,    ref:6.75 },
   "204/205": { a:198, b:61, c:61, chord:21,  ref:5.25 }
 };
+
 const TWO = {
   "AS355":  { a:138.25, b:35.5 },
   "Bell 206": { a:150, b:47.5 }
 };
 
+function byId(id){ return document.getElementById(id); }
+
 function fmt(n){
   if(!isFinite(n)) return "—";
-  return n.toLocaleString(undefined,{minimumFractionDigits:PREC,maximumFractionDigits:PREC});
+  return n.toLocaleString(undefined,{
+    minimumFractionDigits:PREC,
+    maximumFractionDigits:PREC
+  });
 }
-function byId(id){return document.getElementById(id);}
-function isThree(name){return Object.prototype.hasOwnProperty.call(THREE,name);}
 
+function isThree(name){
+  return Object.prototype.hasOwnProperty.call(THREE,name);
+}
+
+/* =========================
+   BUILD UI
+   ========================= */
 function populate(){
-  const sel = byId('blade'); sel.innerHTML="";
+  const sel = byId('blade');
+  sel.innerHTML = "";
   [...Object.keys(THREE), ...Object.keys(TWO)].forEach(n=>{
-    const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o);
+    const o = document.createElement('option');
+    o.value = o.textContent = n;
+    sel.appendChild(o);
   });
 }
 
 function addRow(label,factor,key,readOnly=false,placeholder="0.000"){
-  const tr=document.createElement('tr'); tr.dataset.key=key;
+  const tr = document.createElement('tr');
+  tr.dataset.key = key;
   const weightInput = readOnly
     ? `<input id="${key}_display" type="text" readonly placeholder="${placeholder}">`
-    : `<input id="${key}_w" inputmode="decimal" type="number" step="any" placeholder="${placeholder}" oninput="calc()">`;
-  tr.innerHTML = `<td>${label}</td>
+    : `<input id="${key}_w" inputmode="decimal" type="number" step="any"
+         placeholder="${placeholder}" oninput="calc()">`;
+  tr.innerHTML = `
+    <td>${label}</td>
     <td class="right">${factor}</td>
     <td class="right">${weightInput}</td>
     <td class="right" id="${key}_m">—</td>`;
@@ -240,102 +290,114 @@ function addRow(label,factor,key,readOnly=false,placeholder="0.000"){
 
 function loadBlade(){
   const name = byId('blade').value;
-  const tbody = byId('rows'); tbody.innerHTML="";
+  const tbody = byId('rows');
+  tbody.innerHTML = "";
+
   if(isThree(name)){
     const f = THREE[name];
     addRow("Balance A", f.a, "A");
     addRow("Balance B", f.b, "B");
     addRow("Balance C", f.c, "C");
     addRow("Chord Value", f.chord, "CHORD", true, "= Balance C");
-    byId('cgRow').style.display="";
-    byId('deltaRow').style.display="";
-    byId('chordMRow').style.display="";
-  }else{
+    byId('cgRow').style.display = "";
+    byId('deltaRow').style.display = "";
+    byId('chordMRow').style.display = "";
+  } else {
     const f = TWO[name];
     addRow("Balance A", f.a, "A");
     addRow("Balance B", f.b, "B");
-    byId('cgRow').style.display="none";
-    byId('deltaRow').style.display="none";
-    byId('chordMRow').style.display="none";
+    byId('cgRow').style.display = "none";
+    byId('deltaRow').style.display = "none";
+    byId('chordMRow').style.display = "none";
   }
   calc();
 }
 
 function clearWeights(){
-  document.querySelectorAll('#rows input[type="number"]').forEach(i=>i.value="");
-  const cd = byId('CHORD_display'); if(cd) cd.value="";
+  document.querySelectorAll('#rows input[type="number"]')
+    .forEach(i => i.value = "");
+  const cd = byId('CHORD_display');
+  if(cd) cd.value = "";
   calc();
 }
 
 function getW(id){
   const el = byId(id+"_w");
-  return el ? parseFloat(el.value)||0 : 0;
+  return el ? (parseFloat(el.value) || 0) : 0;
 }
 
+/* =========================
+   CALC LOGIC
+   ========================= */
 function calc(){
-  const name = byId('blade').value;
+  const name  = byId('blade').value;
   const three = isThree(name);
-  let wA=getW("A"), wB=getW("B"), wC=getW("C");
+  let wA = getW("A"),
+      wB = getW("B"),
+      wC = getW("C");
   const f = three ? THREE[name] : TWO[name];
 
-  const mA = (f.a||0)*wA;
-  const mB = (f.b||0)*wB;
-  const mC = (f.c||0)*wC;
+  const mA = (f.a || 0) * wA;
+  const mB = (f.b || 0) * wB;
+  const mC = (f.c || 0) * wC;
 
-  const A_m = byId('A_m'); if(A_m) A_m.textContent=fmt(mA);
-  const B_m = byId('B_m'); if(B_m) B_m.textContent=fmt(mB);
-  const C_m = byId('C_m'); if(C_m) C_m.textContent=fmt(mC);
+  const A_m = byId('A_m'); if(A_m) A_m.textContent = fmt(mA);
+  const B_m = byId('B_m'); if(B_m) B_m.textContent = fmt(mB);
+  const C_m = byId('C_m'); if(C_m) C_m.textContent = fmt(mC);
 
-  const sumW = wA + wB + wC;
+  const sumW  = wA + wB + wC;
   const spanM = mA + mB + mC;
-  byId('totW').textContent = fmt(sumW);
+
+  byId('totW').textContent  = fmt(sumW);
   byId('spanM').textContent = fmt(spanM);
 
   if(three){
     const cd = byId('CHORD_display');
     if(cd) cd.value = fmt(wC);
-    const chordMoment = (f.chord||0) * wC;
-    const CH_m = byId('CHORD_m'); if(CH_m) CH_m.textContent=fmt(chordMoment);
 
-    const chordCG = (sumW>0) ? (wC * f.chord) / sumW : NaN;
-    const delta = isFinite(chordCG) ? (f.ref - chordCG) : NaN;
-    const chordM = isFinite(delta) ? delta * sumW : NaN;
+    const chordMoment = (f.chord || 0) * wC;
+    const CH_m = byId('CHORD_m'); if(CH_m) CH_m.textContent = fmt(chordMoment);
+
+    const chordCG = (sumW > 0) ? (wC * f.chord) / sumW : NaN;
+    const delta   = isFinite(chordCG) ? (f.ref - chordCG) : NaN;
+    const chordM  = isFinite(delta)   ? delta * sumW     : NaN;
+
     byId('chordCG').textContent = fmt(chordCG);
     byId('delta').textContent   = fmt(delta);
     byId('chordM').textContent  = fmt(chordM);
   }
 }
 
+/* =========================
+   PDF GENERATION
+   ========================= */
 function downloadPdf() {
-  // Ensure latest calculations
+  // Make sure numbers on screen are up to date
   calc();
 
-  // Make sure jsPDF is really loaded
+  // Check jsPDF loaded
   if (!window.jspdf || !window.jspdf.jsPDF) {
     alert("PDF engine failed to load. Check your internet connection or jsPDF script.");
     console.error("window.jspdf is", window.jspdf);
     return;
   }
-
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: "mm", format: "letter" });
 
-  // Meta fields (OPTIONAL – can be blank)
-  const wo       = byId('meta_wo') ? byId('meta_wo').value : "";
-  const sn       = byId('meta_sn') ? byId('meta_sn').value : "";
-  const stage    = byId('meta_stage') ? byId('meta_stage').value : "";
-  const pnInput  = byId('meta_pn') ? byId('meta_pn').value : "";
-  const tech     = byId('meta_tech') ? byId('meta_tech').value : "";
-  const insp     = byId('meta_insp') ? byId('meta_insp').value : "";
-  const date     = (byId('meta_date') && byId('meta_date').value)
-                    ? byId('meta_date').value
-                    : new Date().toISOString().slice(0,10);
-  const comments = byId('meta_comments') ? byId('meta_comments').value : "";
-  const targetChord = byId('meta_targetChord') ? byId('meta_targetChord').value : "";
-  const targetSpan  = byId('meta_targetSpan') ? byId('meta_targetSpan').value : "";
+  // Meta fields (optional)
+  const wo       = byId('meta_wo')?.value || "";
+  const sn       = byId('meta_sn')?.value || "";
+  const stage    = byId('meta_stage')?.value || "";
+  const pnInput  = byId('meta_pn')?.value || "";
+  const tech     = byId('meta_tech')?.value || "";
+  const insp     = byId('meta_insp')?.value || "";
+  const date     = byId('meta_date')?.value || new Date().toISOString().slice(0,10);
+  const comments = byId('meta_comments')?.value || "";
+  const targetChord = byId('meta_targetChord')?.value || "";
+  const targetSpan  = byId('meta_targetSpan')?.value || "";
 
-  // Blade selection & factors
-  const bladeName = byId('blade') ? byId('blade').value : "";
+  // Blade & factors
+  const bladeName = byId('blade')?.value || "";
   const three = isThree(bladeName);
   const f = three ? THREE[bladeName] : (TWO[bladeName] || {});
 
@@ -364,15 +426,15 @@ function downloadPdf() {
 
   const sumWText   = sumWEl   ? sumWEl.textContent   : "";
   const spanMText  = spanMEl  ? spanMEl.textContent : "";
-  const chordCG    = chordCGEl ? chordCGEl.textContent : "";
+  const chordCG    = chordCGEl? chordCGEl.textContent: "";
   const delta      = deltaEl  ? deltaEl.textContent : "";
-  const chordM     = chordMEl ? chordMEl.textContent : "";
+  const chordM     = chordMEl ? chordMEl.textContent: "";
 
-  const numericSumW  = parseFloat(sumWText) || totalW;
+  const numericSumW  = parseFloat(sumWText)  || totalW;
   const numericSpanM = parseFloat(spanMText) || (mA + mB + mC + mChord);
   const partNumber   = pnInput || bladeName;
 
-  // Header
+  // ===== HEADER =====
   let y = 10;
   doc.setFontSize(10);
   doc.text("Form 4001", 200-10, y, { align: "right" });
@@ -395,6 +457,7 @@ function downloadPdf() {
   doc.text(`(3) Weight & Balance Stage: ${stage || "—"}`, 10, y); y += 5;
   doc.text(`(11) Part Number: ${partNumber || "—"}`, 10, y); y += 8;
 
+  // ===== TABLE =====
   doc.text("Measurement", 10, y);
   doc.text("Weight (lbs.)", 60, y);
   doc.text("Arm (in.)", 95, y);
@@ -419,7 +482,7 @@ function downloadPdf() {
   doc.text(String(mB.toFixed ? mB.toFixed(PREC_PDF) : mB), 130, y);
   y += 5;
 
-  // C + chord (three-point only)
+  // C & chord (three-point)
   if (three) {
     doc.text("(6) Weight (C):", 10, y);
     doc.text(String(wC.toFixed ? wC.toFixed(PREC_PDF) : (wC || 0)), 60, y);
@@ -441,6 +504,7 @@ function downloadPdf() {
   doc.text(String(numericSpanM.toFixed ? numericSpanM.toFixed(PREC_PDF) : numericSpanM), 130, y);
   y += 8;
 
+  // Bottom metrics
   if (three) {
     doc.text(`Chord C.G.: ${chordCG || "—"}`, 10, y); y += 5;
     doc.text(`Delta C p.a: ${delta || "—"}`, 10, y); y += 5;
@@ -453,6 +517,7 @@ function downloadPdf() {
     doc.text(`Span Moment (in*lbs.): ${spanMText || "—"}`, 10, y); y += 8;
   }
 
+  // Footer sigs
   doc.text(`(7) Technician Initials: ${tech || "—"}`, 10, y);
   doc.text(`(9) Date: ${date}`, 100, y);
   y += 5;
@@ -472,11 +537,12 @@ function downloadPdf() {
   doc.save(fileName);
 }
 
-// init
+/* =========================
+   INIT + SERVICE WORKER
+   ========================= */
 populate();
 loadBlade();
 
-// PWA service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./service-worker.js');
@@ -486,4 +552,3 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
-
