@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>W&BRotorcraft</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+  :root { --bg:#0f172a; --card:#0b1220; --muted:#94a3b8; --text:#e5e7eb; --accent:#22d3ee; }
+  * { box-sizing: border-box; }
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+  .wrap{max-width:640px;margin:0 auto;padding:20px 14px 80px 14px}
+  h1{font-size:22px;margin:8px 0 6px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+  .card{background:var(--card);border:1px solid #1f2937;border-radius:16px;padding:14px;margin:12px 0}
+  .field{display:flex;flex-direction:column;margin-bottom:10px}
+  label{font-size:13px;color:var(--muted);margin-bottom:6px}
+  select, input[type="number"], input[readonly]{
+    -webkit-appearance:none;appearance:none;
+    width:100%;font-size:18px;padding:12px 12px;border-radius:12px;
+    background:#09101E;border:1px solid #1f2937;color:var(--text);
+  }
+  input[readonly]{opacity:.85}
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0;}
+  table{width:100%;border-collapse:separate;border-spacing:0 8px}
+  th, td{padding:10px 8px;font-size:16px}
+  thead th{color:#cbd5e1;text-align:left;border-bottom:1px solid #1f2937}
+  tbody tr{background:#0a1426;border:1px solid #162134;border-radius:12px}
+  tbody td:first-child{border-top-left-radius:12px;border-bottom-left-radius:12px}
+  tbody td:last-child{border-top-right-radius:12px;border-bottom-right-radius:12px}
+  .right{text-align:right}
+  .muted{color:var(--muted)}
+  .btn{background:var(--accent);color:#06232a;border:none;padding:12px 16px;border-radius:12px;font-weight:700;font-size:16px;cursor:pointer}
+  .btn:active{transform:scale(0.98)}
+  .row{display:flex;gap:10px;align-items:center}
+  .row>*{flex:1}
+  .footer{position:fixed;left:0;right:0;bottom:0;background:rgba(9,16,30,.92);backdrop-filter: blur(4px);border-top:1px solid #1f2937;padding:8px 14px;font-size:12px;color:#9aa7b5}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f172a">
+
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+  integrity="sha512-Ae/WKqZ6Cq0o6C+Y3G6pxCMv1M6s8+LUdMz2MwaFYWItF5a2Ke86QenaF+cZ8rZP+zLZ3vt5v5VQWv1qKJQG7Q=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+</head>
+<body>
+<div class="wrap">
+  <h1>Blade Balance</h1>
+  <div class="sub">Enter weights only. For three‑point blades, <b>Chord Value</b> mirrors <b>Balance C</b> and has its own moment. Outputs fixed to 3 decimals with commas.</div>
+
+  <div class="card">
+    <div class="field">
+      <label>Blade Type</label>
+      <select id="blade" onchange="loadBlade()" aria-label="Blade type"></select>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Section</th><th class="right">Factor</th><th class="right">Weight</th><th class="right">Moment</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+      <tfoot>
+        <tr><th class="right" colspan="2">Total Weight ΣW (A+B+C)</th><th class="right" id="totW">—</th><th></th></tr>
+        <tr><th class="right" colspan="3">Span Moment Σ(W×F) (A+B+C)</th><th class="right" id="spanM">—</th></tr>
+        <tr id="cgRow"><th class="right" colspan="3">Chord C.G.</th><th class="right" id="chordCG">—</th></tr>
+        <tr id="deltaRow"><th class="right" colspan="3">ΔCp.a</th><th class="right" id="delta">—</th></tr>
+        <tr id="chordMRow"><th class="right" colspan="3">Chord Moment (ΔCp.a × ΣW)</th><th class="right" id="chordM">—</th></tr>
+      </tfoot>
+    </table>
+
+    <div class="row" style="margin-top:10px">
+      <button class="btn" onclick="clearWeights()">Clear Weights</button>
+      <button class="btn" onclick="calc()">Recalculate</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:16px;margin:0 0 8px">Weight &amp; Balance Report Info</h2>
+    <div class="sub" style="margin-bottom:10px">
+      These fields are used to generate the PDF job sheet and later import into Excel.
+    </div>
+
+    <div class="field">
+      <label>(1) Work Order Number</label>
+      <input id="meta_wo" type="text" placeholder="e.g. 25-06-2069">
+    </div>
+
+    <div class="field">
+      <label>(2) Serial Number</label>
+      <input id="meta_sn" type="text" placeholder="e.g. A007-01374">
+    </div>
+
+    <div class="field">
+      <label>(3) Weight &amp; Balance Stage</label>
+      <select id="meta_stage">
+        <option value="">Select stage</option>
+        <option>Receiving</option>
+        <option>In Repair</option>
+        <option>In Refinish</option>
+        <option>Final</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>(11) Part Number</label>
+      <input id="meta_pn" type="text" placeholder="e.g. 70150-09100-043">
+    </div>
+
+    <div class="field">
+      <label>(7) Technician Initials</label>
+      <input id="meta_tech" type="text" placeholder="e.g. CS">
+    </div>
+
+    <div class="field">
+      <label>(8) Inspector Initials</label>
+      <input id="meta_insp" type="text" placeholder="e.g. JD">
+    </div>
+
+    <div class="field">
+      <label>(9) Date</label>
+      <input id="meta_date" type="date">
+    </div>
+
+    <div class="field">
+      <label>(10) Comments</label>
+      <input id="meta_comments" type="text" placeholder="Any notes about this W&amp;B run">
+    </div>
+
+    <div class="field">
+      <label>Target Chord Moment (in*lbs)</label>
+      <input id="meta_targetChord" type="number" step="0.001">
+    </div>
+
+    <div class="field">
+      <label>Target Span Moment (in*lbs)</label>
+      <input id="meta_targetSpan" type="number" step="0.001">
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="btn" onclick="downloadPdf()">Download PDF</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <div class="muted" style="font-weight:700;margin-bottom:6px">Three‑point blades</div>
+        <div class="muted" style="font-size:14px;line-height:1.45">
+          214 (a=254, b=77.6875, c=77.6875, chord=27, Ref=6.25)<br>
+          UH‑60 (a=241.125, b=64.8125, c=64.8125, chord=21, Ref=6.75)<br>
+          K747 (a=211, b=74, c=74, chord=27, Ref=6.75)<br>
+          204/205 (a=198, b=61, c=61, chord=21, Ref=5.25)
+        </div>
+      </div>
+      <div>
+        <div class="muted" style="font-weight:700;margin-bottom:6px">Two‑point blades</div>
+        <div class="muted" style="font-size:14px;line-height:1.45">
+          AS355 (a=138.250, b=35.5)<br>
+          Bell 206 (a=150, b=47.5)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Tip: Use Chrome/Edge for live serial (RS‑232→USB) input. iPhone: open in Safari → Share → <b>Add to Home Screen</b> for offline.
+</div>
+
+<script>
+// === Data & helpers ===
+const PREC = 3;
+const THREE = {
+  "214":   { a:254, b:77.6875, c:77.6875, chord:27,   ref:6.25 },
+  "UH-60 (BlackHawk)": { a:241.125, b:64.8125, c:64.8125, chord:21, ref:6.75 },
+  "K747":  { a:211, b:74, c:74, chord:27,    ref:6.75 },
+  "204/205": { a:198, b:61, c:61, chord:21,  ref:5.25 }
+};
+const TWO = {
+  "AS355":  { a:138.25, b:35.5 },
+  "Bell 206": { a:150, b:47.5 }
+};
+
+function fmt(n){
+  if(!isFinite(n)) return "—";
+  return n.toLocaleString(undefined,{minimumFractionDigits:PREC,maximumFractionDigits:PREC});
+}
+function byId(id){return document.getElementById(id);}
+function isThree(name){return Object.prototype.hasOwnProperty.call(THREE,name);}
+
+function populate(){
+  const sel = byId('blade'); sel.innerHTML="";
+  [...Object.keys(THREE), ...Object.keys(TWO)].forEach(n=>{
+    const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o);
+  });
+}
+
+function addRow(label,factor,key,readOnly=false,placeholder="0.000"){
+  const tr=document.createElement('tr'); tr.dataset.key=key;
+  const weightInput = readOnly
+    ? `<input id="${key}_display" type="text" readonly placeholder="${placeholder}">`
+    : `<input id="${key}_w" inputmode="decimal" type="number" step="any" placeholder="${placeholder}" oninput="calc()">`;
+  tr.innerHTML = `<td>${label}</td>
+    <td class="right">${factor}</td>
+    <td class="right">${weightInput}</td>
+    <td class="right" id="${key}_m">—</td>`;
+  byId('rows').appendChild(tr);
+}
+
+function loadBlade(){
+  const name = byId('blade').value;
+  const tbody = byId('rows'); tbody.innerHTML="";
+  if(isThree(name)){
+    const f = THREE[name];
+    addRow("Balance A", f.a, "A");
+    addRow("Balance B", f.b, "B");
+    addRow("Balance C", f.c, "C");
+    addRow("Chord Value", f.chord, "CHORD", true, "= Balance C");
+    byId('cgRow').style.display="";
+    byId('deltaRow').style.display="";
+    byId('chordMRow').style.display="";
+  }else{
+    const f = TWO[name];
+    addRow("Balance A", f.a, "A");
+    addRow("Balance B", f.b, "B");
+    byId('cgRow').style.display="none";
+    byId('deltaRow').style.display="none";
+    byId('chordMRow').style.display="none";
+  }
+  calc();
+}
+
+function clearWeights(){
+  document.querySelectorAll('#rows input[type="number"]').forEach(i=>i.value="");
+  const cd = byId('CHORD_display'); if(cd) cd.value="";
+  calc();
+}
+
+function getW(id){
+  const el = byId(id+"_w");
+  return el ? parseFloat(el.value)||0 : 0;
+}
+
+function calc(){
+  const name = byId('blade').value;
+  const three = isThree(name);
+  let sumW=0, spanM=0;
+  let wA=getW("A"), wB=getW("B"), wC=getW("C");
+  const f = three ? THREE[name] : TWO[name];
+
+  // Per-row moments (A,B,C)
+  const mA = (f.a||0)*wA; const mB=(f.b||0)*wB; const mC=(f.c||0)*wC;
+  const A_m = byId('A_m'); if(A_m) A_m.textContent=fmt(mA);
+  const B_m = byId('B_m'); if(B_m) B_m.textContent=fmt(mB);
+  const C_m = byId('C_m'); if(C_m) C_m.textContent=fmt(mC);
+
+  sumW = wA + wB + wC;
+  spanM = mA + mB + mC;
+  byId('totW').textContent = fmt(sumW);
+  byId('spanM').textContent = fmt(spanM);
+
+  if(three){
+    // Chord Value mirrors C
+    const cd = byId('CHORD_display');
+    if(cd) cd.value = fmt(wC);
+    const chordMoment = (f.chord||0) * wC;
+    const CH_m = byId('CHORD_m'); if(CH_m) CH_m.textContent=fmt(chordMoment);
+
+    // Bottom metrics
+    const chordCG = (sumW>0) ? (wC * f.chord) / sumW : NaN;
+    const delta = isFinite(chordCG) ? (f.ref - chordCG) : NaN;
+    const chordM = isFinite(delta) ? delta * sumW : NaN;
+    byId('chordCG').textContent = fmt(chordCG);
+    byId('delta').textContent   = fmt(delta);
+    byId('chordM').textContent  = fmt(chordM);
+  }
+}
+
+function downloadPdf() {
+  // Ensure latest calculations
+  calc();
+
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("PDF engine failed to load. Please check your internet connection or jsPDF CDN.");
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "mm", format: "letter" });
+
+  // Meta fields
+  const wo       = byId('meta_wo') ? byId('meta_wo').value : "";
+  const sn       = byId('meta_sn') ? byId('meta_sn').value : "";
+  const stage    = byId('meta_stage') ? byId('meta_stage').value : "";
+  const pnInput  = byId('meta_pn') ? byId('meta_pn').value : "";
+  const tech     = byId('meta_tech') ? byId('meta_tech').value : "";
+  const insp     = byId('meta_insp') ? byId('meta_insp').value : "";
+  const date     = (byId('meta_date') && byId('meta_date').value)
+                    ? byId('meta_date').value
+                    : new Date().toISOString().slice(0,10);
+  const comments = byId('meta_comments') ? byId('meta_comments').value : "";
+  const targetChord = byId('meta_targetChord') ? byId('meta_targetChord').value : "";
+  const targetSpan  = byId('meta_targetSpan') ? byId('meta_targetSpan').value : "";
+
+  // Blade selection & factors
+  const bladeName = byId('blade') ? byId('blade').value : "";
+  const three = isThree(bladeName);
+  const f = three ? THREE[bladeName] : (TWO[bladeName] || {});
+
+  const wA = getW("A");
+  const wB = getW("B");
+  const wC = three ? getW("C") : 0;
+
+  const mA = (f.a || 0) * wA;
+  const mB = (f.b || 0) * wB;
+  const mC = three ? (f.c || 0) * wC : 0;
+  const chordFactor = three ? (f.chord || 0) : 0;
+  const mChord = three ? chordFactor * wC : 0;
+
+  const sumWEl    = byId('totW');
+  const spanMEl   = byId('spanM');
+  const chordCGEl = byId('chordCG');
+  const deltaEl   = byId('delta');
+  const chordMEl  = byId('chordM');
+
+  const sumWText   = sumWEl   ? sumWEl.textContent   : "";
+  const spanMText  = spanMEl  ? spanMEl.textContent : "";
+  const chordCG    = chordCGEl ? chordCGEl.textContent : "";
+  const delta      = deltaEl  ? deltaEl.textContent : "";
+  const chordM     = chordMEl ? chordMEl.textContent : "";
+
+  const numericSumW = parseFloat(sumWText) || (wA + wB + (three ? wC : 0));
+  const numericSpanM = parseFloat(spanMText) || (mA + mB + mC + mChord);
+
+  const partNumber = pnInput || bladeName;
+
+  // Header
+  let y = 10;
+  doc.setFontSize(10);
+  doc.text("Form 4001", 200-10, y, { align: "right" });
+  y += 6;
+
+  doc.setFontSize(14);
+  doc.text("Weight & Balance Job Aid", 10, y);
+  y += 6;
+  doc.setFontSize(11);
+  doc.text("Rotorcraft Repair & Manufacturing LLC", 10, y);
+  y += 4;
+  doc.setFontSize(9);
+  doc.text("913 Plaza Dr.", 10, y);               y += 4;
+  doc.text("Pocahontas, AR 72455", 10, y);        y += 4;
+  doc.text("Office: 870-202-1454", 10, y);        y += 8;
+
+  // Meta info block
+  doc.setFontSize(9);
+  doc.text(`(1) Work Order Number: ${wo || "—"}`, 10, y);   y += 5;
+  doc.text(`(2) Serial Number: ${sn || "—"}`, 10, y);       y += 5;
+  doc.text(`(3) Weight & Balance Stage: ${stage || "—"}`, 10, y); y += 5;
+  doc.text(`(11) Part Number: ${partNumber || "—"}`, 10, y); y += 8;
+
+  // Table header
+  doc.text("Measurement", 10, y);
+  doc.text("Weight", 60, y);
+  doc.text("Factor", 95, y);
+  doc.text("Moment (in*lbs)", 130, y);
+  y += 5;
+
+  // Row A
+  doc.text("(4) Weight (A):", 10, y);
+  doc.text(String(wA.toFixed ? wA.toFixed(PREC) : (wA || 0)), 60, y);
+  doc.text(String(f.a || 0), 95, y);
+  doc.text((isFinite(mA) ? mA.toFixed(PREC) : "—"), 130, y);
+  y += 5;
+
+  // Row B
+  doc.text("(5) Weight (B):", 10, y);
+  doc.text(String(wB.toFixed ? wB.toFixed(PREC) : (wB || 0)), 60, y);
+  doc.text(String(f.b || 0), 95, y);
+  doc.text((isFinite(mB) ? mB.toFixed(PREC) : "—"), 130, y);
+  y += 5;
+
+  // Row C & chord (only for three-point)
+  if (three) {
+    doc.text("(6) Weight (C):", 10, y);
+    doc.text(String(wC.toFixed ? wC.toFixed(PREC) : (wC || 0)), 60, y);
+    doc.text(String(f.c || 0), 95, y);
+    doc.text((isFinite(mC) ? mC.toFixed(PREC) : "—"), 130, y);
+    y += 5;
+
+    doc.text("Chord:", 10, y);
+    doc.text(String(wC.toFixed ? wC.toFixed(PREC) : (wC || 0)), 60, y);
+    doc.text(String(chordFactor || 0), 95, y);
+    doc.text((isFinite(mChord) ? mChord.toFixed(PREC) : "—"), 130, y);
+    y += 5;
+  }
+
+  // Totals row
+  doc.text("Totals:", 10, y);
+  doc.text(String(numericSumW.toFixed ? numericSumW.toFixed(PREC) : numericSumW), 60, y);
+  doc.text("", 95, y);
+  doc.text(String(numericSpanM.toFixed ? numericSpanM.toFixed(PREC) : numericSpanM), 130, y);
+  y += 8;
+
+  // Bottom metrics (only relevant for three-point)
+  if (three) {
+    doc.text(`Chord C.G.: ${chordCG || "—"}`, 10, y); y += 5;
+    doc.text(`Delta C p.a: ${delta || "—"}`, 10, y); y += 5;
+    doc.text(`Chord Moment (in*lbs.): ${chordM || "—"}`, 10, y); y += 5;
+    doc.text(`Target Chord Moment (in*lbs.): ${targetChord || "—"}`, 10, y); y += 5;
+    doc.text(`Span Moment (in*lbs.): ${spanMText || "—"}`, 10, y); y += 5;
+    doc.text(`Target Span Moment (in*lbs.): ${targetSpan || "—"}`, 10, y); y += 8;
+  } else {
+    doc.text(`Total Weight (ΣW): ${sumWText || "—"}`, 10, y); y += 5;
+    doc.text(`Span Moment (in*lbs.): ${spanMText || "—"}`, 10, y); y += 8;
+  }
+
+  // Technician / Inspector / Date
+  doc.text(`(7) Technician Initials: ${tech || "—"}`, 10, y);
+  doc.text(`(9) Date: ${date}`, 100, y);
+  y += 5;
+  doc.text(`(8) Inspector Initials: ${insp || "—"}`, 10, y);
+  y += 8;
+
+  if (comments) {
+    doc.text("(10) Comments:", 10, y);
+    y += 5;
+    doc.text(comments, 10, y, { maxWidth: 180 });
+    y += 8;
+  }
+
+  // Footer
+  doc.text("Revision Date: 06/06/2025", 10, 270);
+  doc.text("Page 1 of 1", 200-10, 270, { align: "right" });
+
+  const safeWO = (wo || "WO").replace(/[^\w\-]+/g, "_");
+  const safeSN = (sn || "SN").replace(/[^\w\-]+/g, "_");
+  const fileName = `Form4001_${safeWO}_${safeSN}.pdf`;
+  doc.save(fileName);
+}
+
+
+populate();
+loadBlade();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./service-worker.js');
+  });
+}
+</script>
+
+</body>
+</html>
