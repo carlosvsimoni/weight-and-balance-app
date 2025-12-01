@@ -283,18 +283,20 @@ function calc(){
   }
 }
 
+<script>
 function downloadPdf() {
   // Ensure latest calculations
   calc();
 
+  // Ensure jsPDF is loaded (from CDN or local UMD file)
   if (!window.jspdf || !window.jspdf.jsPDF) {
-    alert("PDF engine failed to load. Please check your internet connection or jsPDF CDN.");
+    alert("PDF engine failed to load. Check your internet connection or jsPDF script.");
     return;
   }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: "mm", format: "letter" });
 
-  // Meta fields
+  // Meta fields (OPTIONAL – can be blank)
   const wo       = byId('meta_wo') ? byId('meta_wo').value : "";
   const sn       = byId('meta_sn') ? byId('meta_sn').value : "";
   const stage    = byId('meta_stage') ? byId('meta_stage').value : "";
@@ -316,6 +318,13 @@ function downloadPdf() {
   const wA = getW("A");
   const wB = getW("B");
   const wC = three ? getW("C") : 0;
+
+  // OPTION D: only require that there is some weight
+  const totalW = wA + wB + (three ? wC : 0);
+  if (!totalW || !isFinite(totalW)) {
+    alert("Please enter at least the weight values (A, B and C if applicable) before generating the PDF.");
+    return;
+  }
 
   const mA = (f.a || 0) * wA;
   const mB = (f.b || 0) * wB;
@@ -366,23 +375,27 @@ function downloadPdf() {
 
   // Table header
   doc.text("Measurement", 10, y);
-  doc.text("Weight", 60, y);
-  doc.text("Factor", 95, y);
-  doc.text("Moment (in*lbs)", 130, y);
+  doc.text("Weight (lbs.)", 60, y);
+  doc.text("Arm (in.)", 95, y);
+  doc.text("Moment (in*lbs.)", 130, y);
   y += 5;
+  doc.line(10, y, 200-10, y);
+  y += 4;
+
+  const PREC = 4;
 
   // Row A
   doc.text("(4) Weight (A):", 10, y);
   doc.text(String(wA.toFixed ? wA.toFixed(PREC) : (wA || 0)), 60, y);
   doc.text(String(f.a || 0), 95, y);
-  doc.text((isFinite(mA) ? mA.toFixed(PREC) : "—"), 130, y);
+  doc.text(String(mA.toFixed ? mA.toFixed(PREC) : mA), 130, y);
   y += 5;
 
   // Row B
   doc.text("(5) Weight (B):", 10, y);
   doc.text(String(wB.toFixed ? wB.toFixed(PREC) : (wB || 0)), 60, y);
   doc.text(String(f.b || 0), 95, y);
-  doc.text((isFinite(mB) ? mB.toFixed(PREC) : "—"), 130, y);
+  doc.text(String(mB.toFixed ? mB.toFixed(PREC) : mB), 130, y);
   y += 5;
 
   // Row C & chord (only for three-point)
@@ -390,18 +403,18 @@ function downloadPdf() {
     doc.text("(6) Weight (C):", 10, y);
     doc.text(String(wC.toFixed ? wC.toFixed(PREC) : (wC || 0)), 60, y);
     doc.text(String(f.c || 0), 95, y);
-    doc.text((isFinite(mC) ? mC.toFixed(PREC) : "—"), 130, y);
+    doc.text(String(mC.toFixed ? mC.toFixed(PREC) : mC), 130, y);
     y += 5;
 
     doc.text("Chord:", 10, y);
     doc.text(String(wC.toFixed ? wC.toFixed(PREC) : (wC || 0)), 60, y);
     doc.text(String(chordFactor || 0), 95, y);
-    doc.text((isFinite(mChord) ? mChord.toFixed(PREC) : "—"), 130, y);
+    doc.text(String(mChord.toFixed ? mChord.toFixed(PREC) : mChord), 130, y);
     y += 5;
   }
 
-  // Totals row
-  doc.text("Totals:", 10, y);
+  // Sum line
+  doc.text("Total:", 10, y);
   doc.text(String(numericSumW.toFixed ? numericSumW.toFixed(PREC) : numericSumW), 60, y);
   doc.text("", 95, y);
   doc.text(String(numericSpanM.toFixed ? numericSpanM.toFixed(PREC) : numericSpanM), 130, y);
@@ -434,16 +447,13 @@ function downloadPdf() {
     y += 8;
   }
 
-  // Footer
-  doc.text("Revision Date: 06/06/2025", 10, 270);
-  doc.text("Page 1 of 1", 200-10, 270, { align: "right" });
-
-  const safeWO = (wo || "WO").replace(/[^\w\-]+/g, "_");
-  const safeSN = (sn || "SN").replace(/[^\w\-]+/g, "_");
+  // File name
+  const safeWO = wo ? wo.replace(/[^A-Za-z0-9_-]/g, "_") : "WO";
+  const safeSN = sn ? sn.replace(/[^A-Za-z0-9_-]/g, "_") : "SN";
   const fileName = `Form4001_${safeWO}_${safeSN}.pdf`;
   doc.save(fileName);
 }
-
+</script>
 
 populate();
 loadBlade();
