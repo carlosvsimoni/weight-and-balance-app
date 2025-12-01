@@ -310,13 +310,17 @@ function downloadPdf() {
   // Ensure latest calculations
   calc();
 
+  // Make sure jsPDF is really loaded
   if (!window.jspdf || !window.jspdf.jsPDF) {
     alert("PDF engine failed to load. Check your internet connection or jsPDF script.");
+    console.error("window.jspdf is", window.jspdf);
     return;
   }
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: "mm", format: "letter" });
 
+  // Meta fields (OPTIONAL – can be blank)
   const wo       = byId('meta_wo') ? byId('meta_wo').value : "";
   const sn       = byId('meta_sn') ? byId('meta_sn').value : "";
   const stage    = byId('meta_stage') ? byId('meta_stage').value : "";
@@ -330,6 +334,7 @@ function downloadPdf() {
   const targetChord = byId('meta_targetChord') ? byId('meta_targetChord').value : "";
   const targetSpan  = byId('meta_targetSpan') ? byId('meta_targetSpan').value : "";
 
+  // Blade selection & factors
   const bladeName = byId('blade') ? byId('blade').value : "";
   const three = isThree(bladeName);
   const f = three ? THREE[bladeName] : (TWO[bladeName] || {});
@@ -338,6 +343,7 @@ function downloadPdf() {
   const wB = getW("B");
   const wC = three ? getW("C") : 0;
 
+  // Only require some weight
   const totalW = wA + wB + (three ? wC : 0);
   if (!totalW || !isFinite(totalW)) {
     alert("Please enter at least the weight values (A, B and C if applicable) before generating the PDF.");
@@ -399,18 +405,21 @@ function downloadPdf() {
 
   const PREC_PDF = 4;
 
+  // A
   doc.text("(4) Weight (A):", 10, y);
   doc.text(String(wA.toFixed ? wA.toFixed(PREC_PDF) : (wA || 0)), 60, y);
   doc.text(String(f.a || 0), 95, y);
   doc.text(String(mA.toFixed ? mA.toFixed(PREC_PDF) : mA), 130, y);
   y += 5;
 
+  // B
   doc.text("(5) Weight (B):", 10, y);
   doc.text(String(wB.toFixed ? wB.toFixed(PREC_PDF) : (wB || 0)), 60, y);
   doc.text(String(f.b || 0), 95, y);
   doc.text(String(mB.toFixed ? mB.toFixed(PREC_PDF) : mB), 130, y);
   y += 5;
 
+  // C + chord (three-point only)
   if (three) {
     doc.text("(6) Weight (C):", 10, y);
     doc.text(String(wC.toFixed ? wC.toFixed(PREC_PDF) : (wC || 0)), 60, y);
@@ -425,6 +434,7 @@ function downloadPdf() {
     y += 5;
   }
 
+  // Totals
   doc.text("Total:", 10, y);
   doc.text(String(numericSumW.toFixed ? numericSumW.toFixed(PREC_PDF) : numericSumW), 60, y);
   doc.text("", 95, y);
