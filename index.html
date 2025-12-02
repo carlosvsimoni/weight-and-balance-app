@@ -70,9 +70,9 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
 
-  <!-- jsPDF UMD from CDN -->
+  <!-- jsPDF LEGACY (global window.jsPDF) -->
   <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.legacy.min.js"
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
   ></script>
@@ -375,15 +375,14 @@ function downloadPdf() {
   // Make sure numbers on screen are up to date
   calc();
 
-  // Grab jsPDF safely, NO destructuring
-  const jsPDFConstructor = window.jspdf && window.jspdf.jsPDF;
-  if (!jsPDFConstructor) {
+  // Use legacy global jsPDF
+  if (typeof window.jsPDF !== "function") {
     alert("PDF engine failed to load. Check your internet connection or jsPDF script.");
-    console.error("window.jspdf is", window.jspdf);
+    console.error("window.jsPDF is", window.jsPDF);
     return;
   }
 
-  const doc = new jsPDFConstructor({ unit: "mm", format: "letter" });
+  const doc = new window.jsPDF({ unit: "mm", format: "letter" });
 
   // Meta fields (optional)
   const wo       = byId('meta_wo')?.value || "";
@@ -553,3 +552,4 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+
