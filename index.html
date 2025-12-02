@@ -375,14 +375,15 @@ function downloadPdf() {
   // Make sure numbers on screen are up to date
   calc();
 
-  // Check jsPDF loaded
-  if (!window.jspdf || !window.jspdf.jsPDF) {
+  // Grab jsPDF safely, NO destructuring
+  const jsPDFConstructor = window.jspdf && window.jspdf.jsPDF;
+  if (!jsPDFConstructor) {
     alert("PDF engine failed to load. Check your internet connection or jsPDF script.");
     console.error("window.jspdf is", window.jspdf);
     return;
   }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: "mm", format: "letter" });
+
+  const doc = new jsPDFConstructor({ unit: "mm", format: "letter" });
 
   // Meta fields (optional)
   const wo       = byId('meta_wo')?.value || "";
